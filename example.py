@@ -5,6 +5,9 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
+import mlflow
+import mlflow.sklearn
+
 max_training_rows = 10000
 target = 'buggy'
 date_column = 'author_date'
@@ -65,6 +68,13 @@ def main():
 
     report = classification_report(y_test, y_pred)
     print(report)
+
+    mlflow.sklearn.autolog()
+    mlflow.log_param("ignored_days", ignored_days)
+    mlflow.log_metric("training_rows", len(X_train))
+    mlflow.log_metric("testing_rows", len(X_test))
+    mlflow.sklearn.log_model(model, "model")
+    mlflow.sklearn.eval_and_log_metrics(model, X_test, y_test, prefix="val_")
 
 
 if __name__ == '__main__':
